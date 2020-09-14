@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:emojis/emojis.dart';
 
 var questions = [
   'What is three fifth of 100?',
@@ -14,19 +15,26 @@ var questions = [
 ];
 
 var options = [
-  ['3', '5', '60', '20', 2],
-  ['17 years', '19 years', '37 years', '20 years', 1],
-  ['21', '7', '1', 'None of these', 3],
-  ['0.007', '0.07', '0.7', '7', 1],
-  ['71', '73', '75', '77', 3],
-  ['5', '10', '15', '20', 1],
-  ['15', '30', '225', '255', 2],
-  ['1', '13', '169', '338', 1],
-  ['1.13', '15/17', '17/15', '30/34', 1],
-  ['12', '120', '1200', '12000', 2],
+  ['3', '5', '60', '20', 'C'],
+  ['17 years', '19 years', '37 years', '20 years', 'B'],
+  ['21', '7', '1', 'None of these', 'D'],
+  ['0.007', '0.07', '0.7', '7', 'B'],
+  ['71', '73', '75', '77', 'D'],
+  ['5', '10', '15', '20', 'B'],
+  ['15', '30', '225', '255', 'C'],
+  ['1', '13', '169', '338', 'B'],
+  ['1.13', '15/17', '17/15', '30/34', 'B'],
+  ['12', '120', '1200', '12000', 'C'],
 ];
 var users = {};
 var choice = ['A', 'B', 'C', 'D'];
+// var choice = [for (var option in options) '${option.last}'];
+
+var medals = [
+  Emojis.firstPlaceMedal,
+  Emojis.secondPlaceMedal,
+  Emojis.thirdPlaceMedal,
+];
 
 void main() {
   getUsers();
@@ -39,10 +47,14 @@ void main() {
       if (correct) value['score']++;
     });
   }
-  print('Game Over');
+  print('THE GAME HAS ENDED!!!');
   print('Leaderboard:');
+  print('ID\t\tUsername\t\tScore\t\tMedal');
+
+  users = reArrangeUsers(users);
   users.forEach((key, value) {
-    print('');
+    print(
+        '$key\t\t${value['name']}\t\t\t${value['score']}\t\t${value['medal']}');
   });
 
   // print(users.toString());
@@ -60,6 +72,7 @@ void getUsers() {
       'name': name,
       'id': id,
       'score': 0,
+      'medal': '',
     };
     users.putIfAbsent(id, () => user);
   }
@@ -81,19 +94,42 @@ String askQuestion(int index, String user, [String question, List option]) {
 }
 
 bool isCorrect({dynamic response, int index}) {
-  switch (response) {
-    case 'A':
-      response = 0;
-      break;
-    case 'B':
-      response = 1;
-      break;
-    case 'C':
-      response = 2;
-      break;
-    case 'D':
-      response = 3;
-      break;
+  // switch (response) {
+  //   case 'A':
+  //     response = 0;
+  //     break;
+  //   case 'B':
+  //     response = 1;
+  //     break;
+  //   case 'C':
+  //     response = 2;
+  //     break;
+  //   case 'D':
+  //     response = 3;
+  //     break;
+  // }
+  return response == options[index].last;
+}
+
+Map reArrangeUsers(Map _users) {
+  var keys = _users.keys.toList();
+  for (var i = 0; i < _users.length; i++) {
+    for (var j = 0; j < _users.length; j++) {
+      if (_users[keys[i]]['score'] > _users[keys[j]]['score']) {
+        var temp = keys[i];
+        keys[i] = keys[j];
+        keys[j] = temp;
+      }
+    }
   }
-  return response == options[index][4];
+
+  var arrangedUsers = {};
+  for (var key in keys) {
+    arrangedUsers[key] = _users[key];
+    if (medals.isNotEmpty) {
+      arrangedUsers[key]['medal'] = medals.first;
+      medals.remove(medals.first);
+    }
+  }
+  return arrangedUsers;
 }
