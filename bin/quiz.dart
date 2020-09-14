@@ -12,6 +12,7 @@ var questions = [
   'What is the reciprocal of 17/15?',
   'In a century how many months are there?',
 ];
+
 var options = [
   ['3', '5', '60', '20', 2],
   ['17 years', '19 years', '37 years', '20 years', 1],
@@ -24,42 +25,75 @@ var options = [
   ['1.13', '15/17', '17/15', '30/34', 1],
   ['12', '120', '1200', '12000', 2],
 ];
+var users = {};
+var choice = ['A', 'B', 'C', 'D'];
 
 void main() {
-  print('enter your name to start the game :');
-  String name;
-  name = stdin.readLineSync();
-  var choice = ['A', 'B', 'C', 'D'];
-  var score = 0;
-  dynamic input;
+  getUsers();
+  dynamic response;
 
-  print('Welcome $name');
   for (var i = 0; i < questions.length; i++) {
-    print('${i + 1}. ${questions[i]}');
-    var j = 0;
-    while (j < choice.length) {
-      print('   ${choice[j]}: ${options[i][j]}');
-      j++;
-    }
-    input = stdin.readLineSync();
-    switch (input) {
-      case 'A':
-        input = 0;
-        break;
-      case 'B':
-        input = 1;
-        break;
-      case 'C':
-        input = 2;
-        break;
-      case 'D':
-        input = 3;
-        break;
-    }
-    if (input == options[i][4]) score++;
-    input == options[i][4]
-        ? print('Correct!\n Score: ${score} \n')
-        : print('Incorrect!\n Score: ${score} \n');
+    users.forEach((key, value) {
+      response = askQuestion(i, value['name'], questions[i]);
+      var correct = isCorrect(index: i, response: response);
+      if (correct) value['score']++;
+    });
   }
-  print('you scored ${score}/${questions.length}');
+  print('Game Over');
+  print('Leaderboard:');
+  users.forEach((key, value) {
+    print('');
+  });
+
+  // print(users.toString());
+  // print('you scored ${score}/${questions.length}');
+}
+
+void getUsers() {
+  print('please enter number of user');
+  var noOfUsers = int.parse(stdin.readLineSync());
+  for (var i = 0; i < noOfUsers; i++) {
+    print('User ${i + 1} name: ');
+    var name = stdin.readLineSync();
+    var id = DateTime.now().millisecond;
+    var user = {
+      'name': name,
+      'id': id,
+      'score': 0,
+    };
+    users.putIfAbsent(id, () => user);
+  }
+  // print(users);
+}
+
+String askQuestion(int index, String user, [String question, List option]) {
+  question ??= questions[index];
+  option ??= options[index];
+
+  print('${index + 1}. ${questions[index]}');
+  var j = 0;
+  while (j < choice.length) {
+    print('\t${choice[j]}: ${option[j]}');
+    j++;
+  }
+  print('${user}: ');
+  return stdin.readLineSync();
+}
+
+bool isCorrect({dynamic response, int index}) {
+  switch (response) {
+    case 'A':
+      response = 0;
+      break;
+    case 'B':
+      response = 1;
+      break;
+    case 'C':
+      response = 2;
+      break;
+    case 'D':
+      response = 3;
+      break;
+  }
+  return response == options[index][4];
 }
